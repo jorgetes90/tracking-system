@@ -1,55 +1,65 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <base target="_top">
-  </head>
-  <body>
-    <h2>Issue Reporting Form</h2>
-    <form id="issueForm">
-      <label>Issue Type:</label>
-      <select name="issueType" required>
-        <option value="Issue">Computer Issue</option>
-        <option value="General Issue">General Equipment Issue</option>
-      </select><br><br>
+<head>
+  <title>Issue Reporting Form</title>
+</head>
+<body>
+  <h2>Issue Reporting Form</h2>
+  <form id="issueForm">
+    <label>Issue Type:</label>
+    <select name="issueType" required>
+      <option value="Issue">Computer Issue</option>
+      <option value="General Issue">General Equipment Issue</option>
+    </select><br><br>
 
-      <label>Custom ID:</label>
-      <input type="text" name="customId" required><br><br>
+    <label>Custom ID:</label>
+    <input type="text" name="customId" required><br><br>
 
-      <label>Institution Name:</label>
-      <input type="text" name="institutionName" required><br><br>
+    <label>Institution Name:</label>
+    <input type="text" name="institutionName" required><br><br>
 
-      <label>Issue Description:</label>
-      <textarea name="issueDescription"></textarea><br><br>
+    <label>Issue Description:</label>
+    <textarea name="issueDescription"></textarea><br><br>
 
-      <label>Misc Issue (if any):</label>
-      <input type="text" name="miscIssue"><br><br>
+    <label>Misc Issue (if any):</label>
+    <input type="text" name="miscIssue"><br><br>
 
-      <label>Part (if general issue):</label>
-      <input type="text" name="part"><br><br>
+    <label>Part (if general issue):</label>
+    <input type="text" name="part"><br><br>
 
-      <button type="submit">Submit</button>
-    </form>
+    <button type="submit">Submit</button>
+  </form>
 
-    <p id="statusMsg"></p>
+  <p id="statusMsg"></p>
 
-    <script>
-      document.getElementById('issueForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const formData = new FormData(this);
+  <script>
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbzMLiEKVqjHhwYAHaJRQPDjU3NszZnE467AmOo-DT8qR8p7XiUUCZswiaSlHIe4vs3kQg/exec';  // <-- Put your Google Apps Script URL here
 
-        fetch('https://script.google.com/macros/s/AKfycbxQ9G1v7AfT2-YpZ8phbJcEMy2zmOX-pom1XNRIU6WdKI4rvWlOnqQ0yZB8N9UOxARNzw/exec', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.text())
-        .then(text => {
-          document.getElementById('statusMsg').innerText = text;
-          document.getElementById('issueForm').reset();
-        })
-        .catch(err => {
-          document.getElementById('statusMsg').innerText = 'Error: ' + err.message;
-        });
+    document.getElementById('issueForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const searchParams = new URLSearchParams();
+
+      for (const pair of formData) {
+        searchParams.append(pair[0], pair[1]);
+      }
+
+      fetch(webAppUrl, {
+        method: 'POST',
+        body: searchParams
+      })
+      .then(response => response.text())
+      .then(text => {
+        document.getElementById('statusMsg').innerText = text;
+        if(text.includes('successful')) {
+          this.reset();
+        }
+      })
+      .catch(error => {
+        document.getElementById('statusMsg').innerText = 'Error: ' + error.message;
       });
-    </script>
-  </body>
+    });
+  </script>
+</body>
 </html>
