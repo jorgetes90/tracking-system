@@ -4,28 +4,28 @@
   <title>Issue Reporting Form</title>
 </head>
 <body>
-  <h2>Issue Reporting Form</h2>
+  <h2>Report an Issue</h2>
   <form id="issueForm">
     <label>Issue Type:</label>
     <select name="issueType" required>
       <option value="Issue">Computer Issue</option>
       <option value="General Issue">General Equipment Issue</option>
-    </select><br><br>
+    </select><br>
 
     <label>Custom ID:</label>
-    <input type="text" name="customId" required><br><br>
+    <input type="text" name="customId" required><br>
 
     <label>Institution Name:</label>
-    <input type="text" name="institutionName" required><br><br>
+    <input type="text" name="institutionName" required><br>
 
-    <label>Issue Description:</label>
-    <textarea name="issueDescription"></textarea><br><br>
+    <label>Issue Description:</label><br>
+    <textarea name="issueDescription"></textarea><br>
 
-    <label>Misc Issue (if any):</label>
-    <input type="text" name="miscIssue"><br><br>
+    <label>Misc Issue (optional):</label>
+    <input type="text" name="miscIssue"><br>
 
-    <label>Part (if general issue):</label>
-    <input type="text" name="part"><br><br>
+    <label>Part (for General Issue only):</label>
+    <input type="text" name="part"><br>
 
     <button type="submit">Submit</button>
   </form>
@@ -33,31 +33,29 @@
   <p id="statusMsg"></p>
 
   <script>
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbzXjGEHRxTxN-uj1TMkMEtY8D1cGkZPaWanZ7AA_A-h0D4DeHQoW1VSul7PDftXxwqtzA/exec';  // <-- Put your Google Apps Script URL here
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycby4G5N9YfHsaK7RiLYHZoSWh2giVzPUkZvmGf4yXwoqqskymrGaK0XbSmIgGk8vNuYnXA/exec';
 
     document.getElementById('issueForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
-      const formData = new FormData(this);
-      const searchParams = new URLSearchParams();
-
-      for (const pair of formData) {
-        searchParams.append(pair[0], pair[1]);
-      }
+      const formData = new FormData(e.target);
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
 
       fetch(webAppUrl, {
         method: 'POST',
-        body: searchParams
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
       })
       .then(response => response.text())
       .then(text => {
         document.getElementById('statusMsg').innerText = text;
-        if(text.includes('successful')) {
-          this.reset();
-        }
+        e.target.reset();
       })
-      .catch(error => {
-        document.getElementById('statusMsg').innerText = 'Error: ' + error.message;
+      .catch(err => {
+        document.getElementById('statusMsg').innerText = 'Error: ' + err.message;
       });
     });
   </script>
