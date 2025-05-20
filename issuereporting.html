@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <h2>Issue Reporting Form</h2>
+    <form id="issueForm">
+      <label>Issue Type:</label>
+      <select name="issueType" required>
+        <option value="Issue">Computer Issue</option>
+        <option value="General Issue">General Equipment Issue</option>
+      </select><br><br>
+
+      <label>Custom ID:</label>
+      <input type="text" name="customId" required><br><br>
+
+      <label>Institution Name:</label>
+      <input type="text" name="institutionName" required><br><br>
+
+      <label>Issue Description:</label>
+      <textarea name="issueDescription"></textarea><br><br>
+
+      <label>Misc Issue (if any):</label>
+      <input type="text" name="miscIssue"><br><br>
+
+      <label>Part (if general issue):</label>
+      <input type="text" name="part"><br><br>
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <p id="statusMsg"></p>
+
+    <script>
+      document.getElementById('issueForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch('https://script.google.com/macros/s/AKfycbwRms51NB6kCI9BVsR-ofKVWr1Ip1FVXV-0_LfqgmjvwikGdtfeFFjlZgp5ob4mdOkdGQ/exec', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.text())
+        .then(text => {
+          document.getElementById('statusMsg').innerText = text;
+          document.getElementById('issueForm').reset();
+        })
+        .catch(err => {
+          document.getElementById('statusMsg').innerText = 'Error: ' + err.message;
+        });
+      });
+    </script>
+  </body>
+</html>
