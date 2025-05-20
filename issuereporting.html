@@ -33,12 +33,12 @@
   <p id="statusMsg"></p>
 
   <script>
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycby4G5N9YfHsaK7RiLYHZoSWh2giVzPUkZvmGf4yXwoqqskymrGaK0XbSmIgGk8vNuYnXA/exec';
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbw1fiShv74s3VJkxe4X8yWqRDwwdxS-G4dd-yiObxnc0PBGs0jKqaFcXH68x03JbQ3NUg/exec';
 
     document.getElementById('issueForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
-      const formData = new FormData(e.target);
+      const formData = new FormData(this);
       const data = {};
       formData.forEach((value, key) => data[key] = value);
 
@@ -52,7 +52,7 @@
       .then(response => response.text())
       .then(text => {
         document.getElementById('statusMsg').innerText = text;
-        e.target.reset();
+        this.reset();
       })
       .catch(err => {
         document.getElementById('statusMsg').innerText = 'Error: ' + err.message;
