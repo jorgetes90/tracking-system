@@ -2,144 +2,73 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Issue Reporting Forms</title>
-  <style>
-    form { margin-bottom: 30px; max-width: 400px; }
-    label { font-weight: bold; }
-    textarea, input[type="text"] { width: 100%; padding: 6px; box-sizing: border-box; }
-    button {
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 16px;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    /* Popup styling */
-    #popupMsg {
-      visibility: hidden;
-      min-width: 250px;
-      background-color: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 4px;
-      padding: 16px;
-      position: fixed;
-      z-index: 9999;
-      left: 50%;
-      bottom: 30px;
-      font-size: 17px;
-      transform: translateX(-50%);
-      opacity: 0;
-      transition: opacity 0.5s ease-in-out;
-    }
-    #popupMsg.show {
-      visibility: visible;
-      opacity: 1;
-    }
-    #popupMsg.success {
-      background-color: #28a745;
-    }
-    #popupMsg.error {
-      background-color: #dc3545;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Issue Reporting Form</title>
 </head>
 <body>
-  <h2>Report Computer Issue</h2>
-  <form id="computerIssueForm">
-    <input type="hidden" name="issueType" value="Issue" />
-    <label for="customIdIssue">Custom ID:</label><br />
-    <input type="text" id="customIdIssue" name="customId" required /><br /><br />
+  <h2>Submit Issue</h2>
+  <form id="issueForm">
+    <label>Issue Type:</label>
+    <select id="issueType">
+      <option value="Issue">Computer Issue</option>
+      <option value="General Issue">General Issue</option>
+    </select><br/><br/>
 
-    <label for="institutionNameIssue">Institution Name:</label><br />
-    <input type="text" id="institutionNameIssue" name="institutionName" required /><br /><br />
+    <label>Custom ID:</label>
+    <input type="text" id="customId" required /><br/><br/>
 
-    <label for="issueDescriptionIssue">Issue Description:</label><br />
-    <textarea id="issueDescriptionIssue" name="issueDescription" required></textarea><br /><br />
+    <label>Institution Name:</label>
+    <input type="text" id="institutionName" required /><br/><br/>
 
-    <label for="miscIssue">Misc Issue (optional):</label><br />
-    <input type="text" id="miscIssue" name="miscIssue" /><br /><br />
+    <label>Issue Description:</label>
+    <input type="text" id="issueDescription" required /><br/><br/>
 
-    <button type="submit">Submit Computer Issue</button>
+    <label>Misc Issue (only for Computer Issue):</label>
+    <input type="text" id="miscIssue" /><br/><br/>
+
+    <label>Part (only for General Issue):</label>
+    <input type="text" id="part" /><br/><br/>
+
+    <button type="submit">Submit</button>
   </form>
 
-  <hr />
-
-  <h2>Report General Issue</h2>
-  <form id="generalIssueForm">
-    <input type="hidden" name="issueType" value="General Issue" />
-    <label for="customIdGeneral">Custom ID:</label><br />
-    <input type="text" id="customIdGeneral" name="customId" required /><br /><br />
-
-    <label for="institutionNameGeneral">Institution Name:</label><br />
-    <input type="text" id="institutionNameGeneral" name="institutionName" required /><br /><br />
-
-    <label for="issueDescriptionGeneral">Issue Description:</label><br />
-    <textarea id="issueDescriptionGeneral" name="issueDescription" required></textarea><br /><br />
-
-    <label for="partGeneral">Part (optional):</label><br />
-    <input type="text" id="partGeneral" name="part" /><br /><br />
-
-    <button type="submit">Submit General Issue</button>
-  </form>
-
-  <!-- Popup message container -->
-  <div id="popupMsg"></div>
+  <p id="responseMessage"></p>
 
   <script>
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbxGobrj96rcmK8zo_7Ih1DH-VFuWsJ0I7Dr7lG79XbRnBkSELU5AwH3Rsrgz3TX-pT5qw/exec';
+    const form = document.getElementById('issueForm');
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
 
-    function showPopup(message, type = 'success') {
-      const popup = document.getElementById('popupMsg');
-      popup.textContent = message;
-      popup.className = 'show ' + (type === 'success' ? 'success' : 'error');
-      setTimeout(() => {
-        popup.className = '';
-      }, 3500);
-    }
+      const url = 'https://script.google.com/macros/s/AKfycbxGobrj96rcmK8zo_7Ih1DH-VFuWsJ0I7Dr7lG79XbRnBkSELU5AwH3Rsrgz3TX-pT5qw/exec';
 
-    async function submitForm(form, clearFields = true) {
+      const data = {
+        issueType: document.getElementById('issueType').value,
+        customId: document.getElementById('customId').value,
+        institutionName: document.getElementById('institutionName').value,
+        issueDescription: document.getElementById('issueDescription').value,
+        miscIssue: document.getElementById('miscIssue').value,
+        part: document.getElementById('part').value
+      };
+
       try {
-        const formData = new FormData(form);
-        const data = {};
-        formData.forEach((value, key) => data[key] = value);
-
-        const response = await fetch(webAppUrl, {
+        const response = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-          mode: 'cors'
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
         });
 
-        if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-        const json = await response.json();
-
-        if (json.result === 'success') {
-          showPopup(`Ticket Created: ${json.ticketId}`, 'success');
-          if (clearFields) form.reset();
+        const result = await response.json();
+        if (result.result === 'success') {
+          document.getElementById('responseMessage').innerText = 'Ticket submitted! ID: ' + result.ticketId;
         } else {
-          showPopup(json.message || 'Submission failed.', 'error');
+          document.getElementById('responseMessage').innerText = 'Error: ' + result.message;
         }
-      } catch (error) {
-        showPopup(`Error: ${error.message}`, 'error');
+      } catch (err) {
+        document.getElementById('responseMessage').innerText = 'Request failed: ' + err.message;
       }
-    }
-
-    document.getElementById('computerIssueForm').addEventListener('submit', e => {
-      e.preventDefault();
-      submitForm(e.target);
-    });
-
-    document.getElementById('generalIssueForm').addEventListener('submit', e => {
-      e.preventDefault();
-      submitForm(e.target);
     });
   </script>
 </body>
