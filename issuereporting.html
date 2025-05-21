@@ -6,53 +6,6 @@
   <title>Issue Reporting Forms</title>
   <style>
     form { margin-bottom: 30px; }
-
-    /* Modal popup styles */
-    #popupMsg {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      font-family: Arial, sans-serif;
-    }
-
-    #popupContent {
-      background: #fff;
-      padding: 20px 30px;
-      border-radius: 8px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      text-align: center;
-      max-width: 300px;
-      color: #333;
-      font-size: 1.1rem;
-      position: relative;
-    }
-
-    #popupContent.success {
-      border-left: 6px solid #4CAF50;
-    }
-
-    #popupContent.error {
-      border-left: 6px solid #f44336;
-    }
-
-    #popupCloseBtn {
-      margin-top: 15px;
-      background-color: #4CAF50;
-      border: none;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-
-    #popupCloseBtn.error {
-      background-color: #f44336;
-    }
   </style>
 </head>
 <body>
@@ -94,55 +47,33 @@
     <button type="submit">Submit General Issue</button>
   </form>
 
-  <!-- Popup Modal -->
-  <div id="popupMsg">
-    <div id="popupContent">
-      <p id="popupText"></p>
-      <button id="popupCloseBtn">OK</button>
-    </div>
-  </div>
+  <p id="statusMsg"></p>
 
   <script>
     const webAppUrl = 'https://script.google.com/macros/s/AKfycbxBmEb5a5oSXCsv56wmpVciyrAw_XX2t8k0pAarwi0uD4ijpYgQOX20FXbUBNrn55zpDw/exec';
 
-    const popupMsg = document.getElementById('popupMsg');
-    const popupText = document.getElementById('popupText');
-    const popupContent = document.getElementById('popupContent');
-    const popupCloseBtn = document.getElementById('popupCloseBtn');
-
-    function showPopup(message, type = 'success') {
-      popupText.textContent = message;
-      popupContent.className = type;
-      popupCloseBtn.className = type;
-      popupMsg.style.display = 'flex';
-    }
-
-    popupCloseBtn.addEventListener('click', () => {
-      popupMsg.style.display = 'none';
-    });
-
     function submitForm(form, clearFields = true) {
       const formData = new FormData(form);
-      const data = {};
-      formData.forEach((value, key) => data[key] = value);
+      const params = new URLSearchParams();
+      formData.forEach((value, key) => {
+        if(value) params.append(key, value);
+      });
 
       fetch(webAppUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString(),
       })
-      .then(response => response.json())
-      .then(json => {
-        if(json.result === 'success') {
-          showPopup(`Success! Your ticket ID is: ${json.ticketId}`, 'success');
-          if(clearFields) form.reset();
-        } else {
-          showPopup(`Submission failed: ${json.message}`, 'error');
-        }
-      })
-      .catch(err => {
-        showPopup('Network or server error: ' + err.message, 'error');
-      });
+        .then(response => response.text())
+        .then(text => {
+          alert(text); // pop-up feedback
+          document.getElementById('statusMsg').innerText = text;
+          if (clearFields) form.reset();
+        })
+        .catch(err => {
+          alert('Submission failed: ' + err.message);
+          document.getElementById('statusMsg').innerText = 'Error: ' + err.message;
+        });
     }
 
     document.getElementById('computerIssueForm').addEventListener('submit', function (e) {
