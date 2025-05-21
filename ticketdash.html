@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ticket Dashboard</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  th { background-color: #f2f2f2; }
+</style>
+</head>
+<body>
+
+<h2>Open Tickets</h2>
+<table id="ticketsTable">
+  <thead>
+    <tr>
+      <th>Ticket ID</th>
+      <th>Custom ID</th>
+      <th>Institution Name</th>
+      <th>Issue Description</th>
+      <th>Part (if any)</th>
+      <th>Status</th>
+      <th>Date Reported</th>
+      <th>Date Resolved</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td colspan="8">Loading tickets...</td></tr>
+  </tbody>
+</table>
+
+<script>
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFnb6_tQKRRCSTfITeoks93jSEqL0MyjAQ7tzGcroZ8jq1Y_KfH-43RramWulm4YGDCA/exec';
+
+  async function loadTickets() {
+    try {
+      const res = await fetch(WEB_APP_URL);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const tickets = await res.json();
+      const tbody = document.querySelector("#ticketsTable tbody");
+      tbody.innerHTML = "";
+
+      if (!tickets.length) {
+        tbody.innerHTML = '<tr><td colspan="8">No open tickets found.</td></tr>';
+        return;
+      }
+
+      tickets.forEach(ticket => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${ticket["Ticket ID"] || ""}</td>
+          <td>${ticket["Custom ID"] || ""}</td>
+          <td>${ticket["Institution Name"] || ""}</td>
+          <td>${ticket["Issue Description"] || ""}</td>
+          <td>${ticket["Part (if any)"] || ""}</td>
+          <td>${ticket["Status"] || ""}</td>
+          <td>${ticket["Date Reported"] || ""}</td>
+          <td>${ticket["Date Resolved"] || ""}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (error) {
+      const tbody = document.querySelector("#ticketsTable tbody");
+      tbody.innerHTML = `<tr><td colspan="8" style="color:red;">Error loading tickets: ${error.message}</td></tr>`;
+    }
+  }
+
+  window.onload = loadTickets;
+
+  // Listen for parent message to reload tickets
+  window.addEventListener('message', (event) => {
+    if (event.data === 'reloadDashboard') {
+      loadTickets();
+    }
+  });
+</script>
+
+</body>
+</html>
