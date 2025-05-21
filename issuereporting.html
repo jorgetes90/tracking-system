@@ -3,63 +3,169 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Issue Reporting Form</title>
+  <title>Issue Reporting Forms</title>
+  <style>
+    form { margin-bottom: 30px; }
+  </style>
 </head>
 <body>
-  <h2>Report an Issue</h2>
-  <form id="issueForm">
-    <label for="issueType">Issue Type:</label><br />
-    <select id="issueType" name="issueType" required>
-      <option value="">-- Select --</option>
-      <option value="Issue">Issue</option>
-      <option value="General Issue">General Issue</option>
-    </select><br /><br />
+  <h2>Report Computer Issue</h2>
+  <form id="computerIssueForm">
+    <input type="hidden" name="issueType" value="Issue" />
+    <label for="customIdIssue">Custom ID:</label><br />
+    <input type="text" id="customIdIssue" name="customId" required /><br /><br />
 
-    <label for="customId">Custom ID:</label><br />
-    <input type="text" id="customId" name="customId" required /><br /><br />
+    <label for="institutionNameIssue">Institution Name:</label><br />
+    <input type="text" id="institutionNameIssue" name="institutionName" required /><br /><br />
 
-    <label for="institutionName">Institution Name:</label><br />
-    <input type="text" id="institutionName" name="institutionName" required /><br /><br />
+    <label for="issueDescriptionIssue">Issue Description:</label><br />
+    <textarea id="issueDescriptionIssue" name="issueDescription" required></textarea><br /><br />
 
-    <label for="issueDescription">Issue Description:</label><br />
-    <textarea id="issueDescription" name="issueDescription" required></textarea><br /><br />
-
-    <label for="miscIssue">Misc Issue (if any):</label><br />
+    <label for="miscIssue">Misc Issue (optional):</label><br />
     <input type="text" id="miscIssue" name="miscIssue" /><br /><br />
 
-    <label for="part">Part (if any):</label><br />
-    <input type="text" id="part" name="part" /><br /><br />
+    <button type="submit">Submit Computer Issue</button>
+  </form>
 
-    <button type="submit">Submit</button>
+  <hr />
+
+  <h2>Report General Issue</h2>
+  <form id="generalIssueForm">
+    <input type="hidden" name="issueType" value="General Issue" />
+    <label for="customIdGeneral">Custom ID:</label><br />
+    <input type="text" id="customIdGeneral" name="customId" required /><br /><br />
+
+    <label for="institutionNameGeneral">Institution Name:</label><br />
+    <input type="text" id="institutionNameGeneral" name="institutionName" required /><br /><br />
+
+    <label for="issueDescriptionGeneral">Issue Description:</label><br />
+    <textarea id="issueDescriptionGeneral" name="issueDescription" required></textarea><br /><br />
+
+    <label for="partGeneral">Part (optional):</label><br />
+    <input type="text" id="partGeneral" name="part" /><br /><br />
+
+    <button type="submit">Submit General Issue</button>
   </form>
 
   <p id="statusMsg"></p>
 
   <script>
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbz0-RExldDCdVK2cVCMKOSMkaxFByoKSneGcC_J3J1oBD6mHVAP-cNwnoc3mAXrV7x4/exec';
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbxBZILlj4M_cgmMwkESkB5sVNH5YI21cePZaAEpi1DS7gnHJs2wk2PkStovGGCuGSIs/exec';
 
-    document.getElementById('issueForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      const formData = new FormData(e.target);
+    function submitForm(form, clearFields = true) {
+      const formData = new FormData(form);
       const data = {};
       formData.forEach((value, key) => data[key] = value);
 
       fetch(webAppUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       })
         .then(response => response.text())
         .then(text => {
           document.getElementById('statusMsg').innerText = text;
-          e.target.reset();
+          if (clearFields) form.reset();
         })
         .catch(err => {
           document.getElementById('statusMsg').innerText = 'Error: ' + err.message;
         });
+    }
+
+    document.getElementById('computerIssueForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      submitForm(e.target);
+    });
+
+    document.getElementById('generalIssueForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      submitForm(e.target);
+    });
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Issue Reporting Forms</title>
+  <style>
+    form { margin-bottom: 30px; }
+  </style>
+</head>
+<body>
+  <h2>Report Computer Issue</h2>
+  <form id="computerIssueForm">
+    <input type="hidden" name="issueType" value="Issue" />
+    <label for="customIdIssue">Custom ID:</label><br />
+    <input type="text" id="customIdIssue" name="customId" required /><br /><br />
+
+    <label for="institutionNameIssue">Institution Name:</label><br />
+    <input type="text" id="institutionNameIssue" name="institutionName" required /><br /><br />
+
+    <label for="issueDescriptionIssue">Issue Description:</label><br />
+    <textarea id="issueDescriptionIssue" name="issueDescription" required></textarea><br /><br />
+
+    <label for="miscIssue">Misc Issue (optional):</label><br />
+    <input type="text" id="miscIssue" name="miscIssue" /><br /><br />
+
+    <button type="submit">Submit Computer Issue</button>
+  </form>
+
+  <hr />
+
+  <h2>Report General Issue</h2>
+  <form id="generalIssueForm">
+    <input type="hidden" name="issueType" value="General Issue" />
+    <label for="customIdGeneral">Custom ID:</label><br />
+    <input type="text" id="customIdGeneral" name="customId" required /><br /><br />
+
+    <label for="institutionNameGeneral">Institution Name:</label><br />
+    <input type="text" id="institutionNameGeneral" name="institutionName" required /><br /><br />
+
+    <label for="issueDescriptionGeneral">Issue Description:</label><br />
+    <textarea id="issueDescriptionGeneral" name="issueDescription" required></textarea><br /><br />
+
+    <label for="partGeneral">Part (optional):</label><br />
+    <input type="text" id="partGeneral" name="part" /><br /><br />
+
+    <button type="submit">Submit General Issue</button>
+  </form>
+
+  <p id="statusMsg"></p>
+
+  <script>
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbxBZILlj4M_cgmMwkESkB5sVNH5YI21cePZaAEpi1DS7gnHJs2wk2PkStovGGCuGSIs/exec';
+
+    function submitForm(form, clearFields = true) {
+      const formData = new FormData(form);
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
+
+      fetch(webAppUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+        .then(response => response.text())
+        .then(text => {
+          document.getElementById('statusMsg').innerText = text;
+          if (clearFields) form.reset();
+        })
+        .catch(err => {
+          document.getElementById('statusMsg').innerText = 'Error: ' + err.message;
+        });
+    }
+
+    document.getElementById('computerIssueForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      submitForm(e.target);
+    });
+
+    document.getElementById('generalIssueForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      submitForm(e.target);
     });
   </script>
 </body>
