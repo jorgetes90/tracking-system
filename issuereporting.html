@@ -121,8 +121,8 @@
 
         const json = await response.json();
 
-        if (json.status === 'success') {
-          showPopup(json.message || 'Submission successful!', 'success');
+        if (json.result === 'success') {
+          showPopup(`Ticket Created: ${json.ticketId}`, 'success');
           if (clearFields) form.reset();
         } else {
           showPopup(json.message || 'Submission failed.', 'error');
