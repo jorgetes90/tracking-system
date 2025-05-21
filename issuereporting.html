@@ -4,26 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Issue Reporting Forms</title>
-  <style>
-    form { margin-bottom: 30px; }
-  </style>
+  <style>form { margin-bottom: 30px; }</style>
 </head>
 <body>
   <h2>Report Computer Issue</h2>
   <form id="computerIssueForm">
     <input type="hidden" name="issueType" value="Issue" />
-    <label for="customIdIssue">Custom ID:</label><br />
-    <input type="text" id="customIdIssue" name="customId" required /><br /><br />
-
-    <label for="institutionNameIssue">Institution Name:</label><br />
-    <input type="text" id="institutionNameIssue" name="institutionName" required /><br /><br />
-
-    <label for="issueDescriptionIssue">Issue Description:</label><br />
-    <textarea id="issueDescriptionIssue" name="issueDescription" required></textarea><br /><br />
-
-    <label for="miscIssue">Misc Issue (optional):</label><br />
-    <input type="text" id="miscIssue" name="miscIssue" /><br /><br />
-
+    <!-- form inputs -->
     <button type="submit">Submit Computer Issue</button>
   </form>
 
@@ -32,104 +19,7 @@
   <h2>Report General Issue</h2>
   <form id="generalIssueForm">
     <input type="hidden" name="issueType" value="General Issue" />
-    <label for="customIdGeneral">Custom ID:</label><br />
-    <input type="text" id="customIdGeneral" name="customId" required /><br /><br />
-
-    <label for="institutionNameGeneral">Institution Name:</label><br />
-    <input type="text" id="institutionNameGeneral" name="institutionName" required /><br /><br />
-
-    <label for="issueDescriptionGeneral">Issue Description:</label><br />
-    <textarea id="issueDescriptionGeneral" name="issueDescription" required></textarea><br /><br />
-
-    <label for="partGeneral">Part (optional):</label><br />
-    <input type="text" id="partGeneral" name="part" /><br /><br />
-
-    <button type="submit">Submit General Issue</button>
-  </form>
-
-  <p id="statusMsg"></p>
-
-  <script>
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbxBZILlj4M_cgmMwkESkB5sVNH5YI21cePZaAEpi1DS7gnHJs2wk2PkStovGGCuGSIs/exec';
-
-    function submitForm(form, clearFields = true) {
-      const formData = new FormData(form);
-      const data = {};
-      formData.forEach((value, key) => data[key] = value);
-
-      fetch(webAppUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
-        .then(response => response.text())
-        .then(text => {
-          document.getElementById('statusMsg').innerText = text;
-          if (clearFields) form.reset();
-        })
-        .catch(err => {
-          document.getElementById('statusMsg').innerText = 'Error: ' + err.message;
-        });
-    }
-
-    document.getElementById('computerIssueForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      submitForm(e.target);
-    });
-
-    document.getElementById('generalIssueForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      submitForm(e.target);
-    });
-  </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Issue Reporting Forms</title>
-  <style>
-    form { margin-bottom: 30px; }
-  </style>
-</head>
-<body>
-  <h2>Report Computer Issue</h2>
-  <form id="computerIssueForm">
-    <input type="hidden" name="issueType" value="Issue" />
-    <label for="customIdIssue">Custom ID:</label><br />
-    <input type="text" id="customIdIssue" name="customId" required /><br /><br />
-
-    <label for="institutionNameIssue">Institution Name:</label><br />
-    <input type="text" id="institutionNameIssue" name="institutionName" required /><br /><br />
-
-    <label for="issueDescriptionIssue">Issue Description:</label><br />
-    <textarea id="issueDescriptionIssue" name="issueDescription" required></textarea><br /><br />
-
-    <label for="miscIssue">Misc Issue (optional):</label><br />
-    <input type="text" id="miscIssue" name="miscIssue" /><br /><br />
-
-    <button type="submit">Submit Computer Issue</button>
-  </form>
-
-  <hr />
-
-  <h2>Report General Issue</h2>
-  <form id="generalIssueForm">
-    <input type="hidden" name="issueType" value="General Issue" />
-    <label for="customIdGeneral">Custom ID:</label><br />
-    <input type="text" id="customIdGeneral" name="customId" required /><br /><br />
-
-    <label for="institutionNameGeneral">Institution Name:</label><br />
-    <input type="text" id="institutionNameGeneral" name="institutionName" required /><br /><br />
-
-    <label for="issueDescriptionGeneral">Issue Description:</label><br />
-    <textarea id="issueDescriptionGeneral" name="issueDescription" required></textarea><br /><br />
-
-    <label for="partGeneral">Part (optional):</label><br />
-    <input type="text" id="partGeneral" name="part" /><br /><br />
-
+    <!-- form inputs -->
     <button type="submit">Submit General Issue</button>
   </form>
 
