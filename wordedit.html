@@ -1,0 +1,285 @@
+<!-- [START OF FILE] -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Word Editor with Copy & Save</title>
+  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx@7.3.0/build/index.min.js"></script>
+  <style>
+    body {
+      margin: 0; padding: 1rem;
+      font-family: Calibri, sans-serif;
+      background: #121212;
+      color: #eee;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #topToolbar, #formatToolbar {
+      display: flex;
+      background: linear-gradient(90deg, #0f0c29, #302b63, #24243e);
+      padding: 8px 16px;
+      gap: 16px;
+      align-items: center;
+    }
+    #topToolbar {
+      border-radius: 8px 8px 0 0;
+      box-shadow: 0 0 15px #00ffffaa;
+    }
+    #formatToolbar {
+      border-top: 1.5px solid #00ffffaa;
+      border-bottom: 1.5px solid #00ffffaa;
+      box-shadow: inset 0 0 10px #00ffffaa;
+    }
+    #fileMenuButton {
+      background: #00ffff22;
+      border: 1.5px solid #00ffffaa;
+      padding: 6px 16px;
+      border-radius: 6px;
+      color: #00ffffcc;
+      font-weight: 700;
+      cursor: pointer;
+      position: relative;
+    }
+    #fileMenuDropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #181818dd;
+      border: 1.5px solid #00ffffaa;
+      border-radius: 6px;
+      margin-top: 6px;
+      min-width: 140px;
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+    }
+    #fileMenuDropdown button {
+      background: transparent;
+      border: none;
+      color: #00ffffcc;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      text-align: left;
+    }
+    #fileMenuDropdown button:hover {
+      background: #00ffffaa;
+      color: #121212;
+    }
+    #fileInput {
+      display: none;
+    }
+    #formatToolbar button {
+      background: transparent;
+      border: none;
+      color: #00ffffcc;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: 4px;
+    }
+    #formatToolbar button:hover {
+      background: #00ffffaa;
+      color: #121212;
+    }
+    #editor {
+      flex-grow: 1;
+      background: #181818;
+      border: 1px solid #00ffffaa;
+      padding: 16px;
+      border-radius: 0 0 8px 8px;
+      overflow-y: auto;
+      font-family: Calibri, sans-serif;
+      font-size: 11pt;
+      color: #eee;
+    }
+    .highlighted {
+      background-color: #00ffff88;
+      box-shadow: 0 0 10px #00ffffcc;
+      border-radius: 4px;
+    }
+    #textCount {
+      margin-left: auto;
+      color: #00ffffcc;
+      font-weight: bold;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="topToolbar">
+  <div id="fileMenuButton">File ▼
+    <div id="fileMenuDropdown">
+      <button id="openDocxBtn">Open .docx</button>
+      <button id="saveDocxBtn">Save As</button>
+    </div>
+  </div>
+  <input type="file" id="fileInput" accept=".docx" />
+</div>
+
+<div id="formatToolbar">
+  <button onclick="execCmd('bold')">B</button>
+  <button onclick="execCmd('italic')">I</button>
+  <button onclick="execCmd('underline')">U</button>
+  <div id="textCount">Texts selected: 0</div>
+</div>
+
+<div id="editor" contenteditable="true" spellcheck="false">
+Start typing or open a .docx file...
+</div>
+
+<script>
+const editor = document.getElementById('editor');
+const fileInput = document.getElementById('fileInput');
+const openDocxBtn = document.getElementById('openDocxBtn');
+const saveDocxBtn = document.getElementById('saveDocxBtn');
+const fileMenuButton = document.getElementById('fileMenuButton');
+const fileMenuDropdown = document.getElementById('fileMenuDropdown');
+const textCount = document.getElementById('textCount');
+
+const STORAGE_KEY = "word-editor-content";
+let currentFilename = "document.docx";
+let highlights = [];
+
+// Restore autosaved content
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) editor.innerHTML = saved;
+});
+
+// Auto-save every 5 seconds
+setInterval(() => {
+  localStorage.setItem(STORAGE_KEY, editor.innerHTML);
+}, 5000);
+
+// File menu toggling
+fileMenuButton.onclick = () => {
+  fileMenuDropdown.style.display = fileMenuDropdown.style.display === "flex" ? "none" : "flex";
+};
+document.addEventListener("click", (e) => {
+  if (!fileMenuButton.contains(e.target)) {
+    fileMenuDropdown.style.display = "none";
+  }
+});
+
+// Open DOCX
+openDocxBtn.onclick = () => {
+  fileMenuDropdown.style.display = "none";
+  fileInput.click();
+};
+fileInput.onchange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  currentFilename = file.name || "document.docx";
+  const arrayBuffer = await file.arrayBuffer();
+  const result = await mammoth.convertToHtml({ arrayBuffer });
+  editor.innerHTML = result.value;
+  clearHighlights();
+};
+
+// Save DOCX
+saveDocxBtn.onclick = async () => {
+  const { Document, Packer, Paragraph, TextRun } = window.docx;
+  const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: {
+            font: "Calibri",
+            size: 22,
+          },
+        },
+      },
+    },
+    sections: [{
+      children: editor.innerText.split("\n").map(t => new Paragraph(t))
+    }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  if ('showSaveFilePicker' in window) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: currentFilename,
+        types: [{
+          description: "Word Document",
+          accept: { "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"] },
+        }],
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+    } catch (e) {
+      console.warn("Save canceled");
+    }
+  } else {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = currentFilename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+};
+
+// Exec formatting
+function execCmd(cmd) {
+  document.execCommand(cmd, false, null);
+  editor.focus();
+}
+
+// Highlight logic
+function highlightSelection() {
+  const sel = window.getSelection();
+  if (sel.isCollapsed || !editor.contains(sel.anchorNode)) return;
+
+  const range = sel.getRangeAt(0).cloneRange();
+  const span = document.createElement("span");
+  span.className = "highlighted";
+  span.dataset.highlightId = Date.now() + Math.random();
+  try {
+    range.surroundContents(span);
+  } catch {
+    const content = range.extractContents();
+    span.appendChild(content);
+    range.insertNode(span);
+  }
+  highlights.push(span);
+  textCount.textContent = `Texts selected: ${highlights.length}`;
+  sel.removeAllRanges();
+}
+
+// Copy all highlighted
+document.addEventListener("keydown", (e) => {
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+    e.preventDefault();
+    if (!highlights.length) return alert("No text selected. Use Ctrl + click to select.");
+    const allText = highlights.map(h => h.innerText).join("\n\n");
+    navigator.clipboard.writeText(allText);
+    clearHighlights();
+  }
+});
+
+editor.addEventListener("mouseup", (e) => {
+  if (e.ctrlKey) highlightSelection();
+});
+
+function clearHighlights() {
+  highlights.forEach(h => {
+    const parent = h.parentNode;
+    while (h.firstChild) parent.insertBefore(h.firstChild, h);
+    parent.removeChild(h);
+  });
+  highlights = [];
+  textCount.textContent = "Texts selected: 0";
+}
+</script>
+</body>
+</html>
+<!-- [END OF FILE] -->
